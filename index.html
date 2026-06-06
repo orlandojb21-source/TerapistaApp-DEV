@@ -857,15 +857,25 @@ function renderHoy() {
   const alertas = pacientes.filter(p=>p.Estado!=='inactivo'&&sesionesRestantes(p)<=5).map(p=>
     `<div class="alert-card">⚠️ <strong>${p.Nombre.split(' ')[0]}</strong> le quedan solo ${sesionesRestantes(p)} sesiones</div>`
   ).join('');
+  const diaLibreHoy = diasLibres.find(d=>d.Fecha===t);
+  const diaLibreHTML = diaLibreHoy
+    ? `<div style="background:#FFF3CD;border:0.5px solid #FAC775;border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">${diaLibreHoy.Tipo==='Feriado'?'🎉':diaLibreHoy.Tipo==='Incapacidad'?'🤒':'🏖️'}</span>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:#633806">${diaLibreHoy.Tipo}</div>
+          ${diaLibreHoy.Notas?`<div style="font-size:11px;color:#633806;margin-top:2px">${diaLibreHoy.Notas}</div>`:''}
+        </div>
+      </div>` : '';
   const sesHTML = sesDia.length ? sesDia.map(s=>{
     const pac=pacientes.find(p=>p.ID===s.PacienteID)||{};
     const nombre=pac.Nombre||'Paciente desconocido';
+    const notasResumen=s.Notas?(s.Notas.length>60?s.Notas.substring(0,60)+'...':s.Notas):'';
     return `<div class="session-item" onclick="abrirEditarSesion('${s.ID}')" style="cursor:pointer">
       <span class="s-time">${s.HoraInicio}</span>
       <div class="s-dot" style="background:${dotColor(s.Tipo)}"></div>
       <div class="s-info">
         <div class="s-name">${nombre}${s.Tipo==='Recuperacion'?' 🔄':''}</div>
-        <div class="s-sub">${s.Lugar} · ${pac.DuracionMin||'?'} min</div>
+        ${notasResumen?`<div class="s-sub">${notasResumen}</div>`:''}
       </div>
       ${chipHTML(s.Tipo)}
       <i class="fas fa-pen" style="font-size:11px;color:var(--lav-pale);margin-left:4px"></i>
@@ -879,11 +889,14 @@ function renderHoy() {
       <div class="stat-card"><div class="num">${canceladas}</div><div class="lbl">Canceladas</div></div>
       <div class="stat-card"><div class="num">${recuperaciones}</div><div class="lbl">Recuperaciones</div></div>
     </div>
+    ${diaLibreHTML}
     ${alertas}
-    <div class="section-lbl">Agenda del día</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div class="section-lbl" style="margin:0">Agenda del día</div>
+      <button onclick="abrirModalDiaLibre()" style="background:var(--amber-light);border:0.5px solid #FAC775;border-radius:20px;padding:5px 12px;font-size:11px;color:#633806;cursor:pointer;font-family:Georgia,serif">🏖️ Día libre</button>
+    </div>
     <div class="card">${sesHTML}</div>`;
 }
-
 function abrirEditarSesion(id) {
   const s=sesiones.find(x=>x.ID===id); if(!s) return;
   const pac=pacientes.find(x=>x.ID===s.PacienteID);
