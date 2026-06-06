@@ -1815,17 +1815,16 @@ async function guardarDiaLibre() {
   if (!fecha) { showToast('⚠️ Selecciona una fecha'); return; }
   showToast('Guardando...');
   try {
-    const url = new URL(API_URL);
-    url.searchParams.set('action', 'agregarDiaLibre');
-    url.searchParams.set('Fecha', fecha);
-    url.searchParams.set('Tipo', tipo);
-    url.searchParams.set('Notas', notas);
-    await fetch(url.toString(), { mode: 'no-cors' });
-    diasLibres.push({ ID: Date.now().toString(), Fecha:fecha, Tipo:tipo, Notas:notas });
-    document.getElementById('ov-dia-libre').remove();
-    showToast('✅ Día libre guardado');
-    renderHoy();
-    renderMes();
+    const r = await apiGet({ action:'agregarDiaLibre', Fecha:fecha, Tipo:tipo, Notas:notas });
+    if (r.success) {
+      diasLibres.push({ ID: r.id, Fecha:fecha, Tipo:tipo, Notas:notas });
+      document.getElementById('ov-dia-libre').remove();
+      showToast('✅ Día libre guardado');
+      renderHoy();
+      renderMes();
+    } else {
+      showToast('⚠️ Error: ' + (r.error || 'sin respuesta'));
+    }
   } catch(e) {
     showToast('⚠️ Error: '+e.message);
   }
