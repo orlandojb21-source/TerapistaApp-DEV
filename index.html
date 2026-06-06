@@ -1815,7 +1815,7 @@ async function guardarDiaLibre() {
   if (!fecha) { showToast('⚠️ Selecciona una fecha'); return; }
   showToast('Guardando...');
   try {
-    const r = await apiGet({ action:'agregarDiaLibre', Fecha:fecha, Tipo:tipo, Notas:notas });
+    const r = await apiPost({ action:'agregarDiaLibre', data:{ Fecha:fecha, Tipo:tipo, Notas:notas } });
     if (r.success) {
       diasLibres.push({ ID:r.id, Fecha:fecha, Tipo:tipo, Notas:notas });
       document.getElementById('ov-dia-libre').remove();
