@@ -1004,6 +1004,12 @@ function renderMes() {
     const[y,m,d]=selDay.split('-');
     const diasSem=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     const wday=diasSem[new Date(selDay).getDay()];
+    const diaLibreSel=diasLibres.find(d=>d.Fecha===selDay);
+    const diaLibreSelHTML=diaLibreSel?`<div style="background:var(--amber-light);border:0.5px solid #FAC775;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:16px">${diaLibreSel.Tipo==='Feriado'?'🎉':diaLibreSel.Tipo==='Incapacidad'?'🤒':'🏖️'}</span>
+      <div><div style="font-size:12px;font-weight:500;color:#633806">${diaLibreSel.Tipo}</div>
+      ${diaLibreSel.Notas?`<div style="font-size:11px;color:#633806">${diaLibreSel.Notas}</div>`:''}</div>
+      </div>`:'';
     const sesHTML=daySes.length?daySes.map(s=>{
       const pac=pacientes.find(p=>p.ID===s.PacienteID)||{};
       return `<div class="session-item">
