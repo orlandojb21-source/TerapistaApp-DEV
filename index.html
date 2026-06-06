@@ -1754,6 +1754,65 @@ async function recargarDatos() {
   } catch(e){console.log('Recarga silenciosa falló:',e.message);}
 }
 
+  function abrirModalDiaLibre(fechaPreseleccionada) {
+  const ov = document.createElement('div');
+  ov.id = 'ov-dia-libre';
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(83,74,183,0.4);z-index:500;display:flex;align-items:flex-end;justify-content:center';
+  ov.innerHTML = `
+    <div style="background:white;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:20px 16px 40px">
+      <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px"></div>
+      <div style="font-size:16px;color:var(--text);margin-bottom:14px;font-family:Georgia,serif">🏖️ Marcar día libre</div>
+      <div class="field-lbl">Fecha</div>
+      <input type="date" id="dl-fecha" value="${fechaPreseleccionada||today()}" style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border);font-family:Georgia,serif;font-size:13px;margin-bottom:12px" />
+      <div class="field-lbl">Tipo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div id="dl-opt-libre" onclick="selectDLTipo('Libre')" style="padding:10px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--lav);background:var(--lav-light);text-align:center;cursor:pointer">
+          <div style="font-size:18px">🏖️</div><div style="font-size:11px;color:var(--text);font-weight:500">Libre</div>
+        </div>
+        <div id="dl-opt-feriado" onclick="selectDLTipo('Feriado')" style="padding:10px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:white;text-align:center;cursor:pointer">
+          <div style="font-size:18px">🎉</div><div style="font-size:11px;color:var(--text);font-weight:500">Feriado</div>
+        </div>
+        <div id="dl-opt-incapacidad" onclick="selectDLTipo('Incapacidad')" style="padding:10px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:white;text-align:center;cursor:pointer">
+          <div style="font-size:18px">🤒</div><div style="font-size:11px;color:var(--text);font-weight:500">Incapacidad</div>
+        </div>
+      </div>
+      <div class="field-lbl">Notas / Motivo</div>
+      <textarea id="dl-notas" placeholder="Ej: Feriado nacional, gripe, cita médica..." style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border);font-family:Georgia,serif;font-size:13px;resize:none;height:80px;margin-bottom:12px"></textarea>
+      <button onclick="guardarDiaLibre()" style="width:100%;padding:13px;border-radius:var(--radius);background:var(--lav);color:white;font-size:14px;border:none;cursor:pointer;font-family:Georgia,serif">💾 Guardar</button>
+      <button onclick="document.getElementById('ov-dia-libre').remove()" style="width:100%;padding:11px;background:none;border:none;color:var(--sub);font-family:Georgia,serif;font-size:13px;cursor:pointer;margin-top:6px">Cancelar</button>
+    </div>`;
+  document.getElementById('app').appendChild(ov);
+  window._dlTipo = 'Libre';
+}
+
+function selectDLTipo(tipo) {
+  window._dlTipo = tipo;
+  ['Libre','Feriado','Incapacidad'].forEach(t => {
+    const el = document.getElementById('dl-opt-'+t.toLowerCase());
+    if (!el) return;
+    el.style.border = t===tipo ? '1.5px solid var(--lav)' : '1.5px solid var(--border)';
+    el.style.background = t===tipo ? 'var(--lav-light)' : 'white';
+  });
+}
+
+async function guardarDiaLibre() {
+  const fecha = document.getElementById('dl-fecha').value;
+  const notas = document.getElementById('dl-notas').value;
+  const tipo  = window._dlTipo || 'Libre';
+  if (!fecha) { showToast('⚠️ Selecciona una fecha'); return; }
+  showToast('Guardando...');
+  try {
+    const r = await apiGet({ action:'agregarDiaLibre', Fecha:fecha, Tipo:tipo, Notas:notas });
+    if (r.success) {
+      diasLibres.push({ ID:r.id, Fecha:fecha, Tipo:tipo, Notas:notas });
+      document.getElementById('ov-dia-libre').remove();
+      showToast('✅ Día libre guardado');
+      renderHoy();
+      renderMes();
+    } else { showToast('⚠️ Error al guardar'); }
+  } catch(e) { showToast('⚠️ Error: '+e.message); }
+}
+  
 document.getElementById('reg-fecha').value=today();
 init();
 
