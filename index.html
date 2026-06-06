@@ -1018,7 +1018,10 @@ function renderMes() {
         <div class="s-info"><div class="s-name">${pac.Nombre||'—'}${s.Tipo==='Recuperacion'?' 🔄':''}</div><div class="s-sub">${s.Lugar}</div></div>
         ${chipHTML(s.Tipo)}</div>`;
     }).join(''):'<div class="empty" style="padding:14px">Sin sesiones</div>';
-    calHTML+=`<div class="card"><div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px">${wday} ${d}/${m}</div>${sesHTML}</div>`;
+    calHTML+=`<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:500;color:var(--text)">${wday} ${d}/${m}</div>
+      <button onclick="abrirModalDiaLibre('${selDay}')" style="background:var(--amber-light);border:0.5px solid #FAC775;border-radius:20px;padding:4px 10px;font-size:11px;color:#633806;cursor:pointer;font-family:Georgia,serif">🏖️ Día libre</button>
+      </div>${diaLibreSelHTML}${sesHTML}</div>`;
   }
   document.getElementById('screen-mes').innerHTML=calHTML;
 }
