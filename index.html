@@ -598,7 +598,7 @@ async function init() {
   document.getElementById('screen-hoy').innerHTML = '<div class="loading"><div class="spinner"></div><p style="font-size:13px;color:var(--sub)">Cargando datos...</p></div>';
   updateHeader('hoy');
   try {
-    const [rPac, rSes, rAg, rPlan, rConf2] = await Promise.all([
+    const [rPac, rSes, rAg, rPlan, rConf2, rDL] = await Promise.all([
       apiGet({ action:'getPacientes' }),
       apiGet({ action:'getSesiones' }),
       apiGet({ action:'getAgencias' }),
