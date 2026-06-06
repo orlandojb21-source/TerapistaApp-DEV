@@ -603,7 +603,8 @@ async function init() {
       apiGet({ action:'getSesiones' }),
       apiGet({ action:'getAgencias' }),
       apiGet({ action:'getPlanificacion' }),
-      apiGet({ action:'getConfig2' })
+      apiGet({ action:'getConfig2' }),
+      apiGet({ action:'getDiasLibres' })
     ]);
     if (rPac.success)  pacientes   = rPac.data  || [];
     if (rSes.success)  sesiones    = rSes.data  || [];
