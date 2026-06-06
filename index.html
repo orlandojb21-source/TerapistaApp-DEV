@@ -1820,7 +1820,7 @@ async function guardarDiaLibre() {
     url.searchParams.set('Fecha', fecha);
     url.searchParams.set('Tipo', tipo);
     url.searchParams.set('Notas', notas);
-    await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+    await fetch(url.toString(), { mode: 'no-cors' });
     diasLibres.push({ ID: Date.now().toString(), Fecha:fecha, Tipo:tipo, Notas:notas });
     document.getElementById('ov-dia-libre').remove();
     showToast('✅ Día libre guardado');
