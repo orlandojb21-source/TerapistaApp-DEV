@@ -985,8 +985,9 @@ function renderMes() {
     const isToday=isThisMonth&&d===todayD.getDate();
     const isSel=selDay===dateStr;
     const hasCan=daySes.some(s=>s.Tipo==='Cancelada')&&!daySes.some(s=>s.Tipo!=='Cancelada');
+    const diaLibre=diasLibres.find(d=>d.Fecha===dateStr);
     let cls='cal-day';
-    if(isToday) cls+=' today'; else if(isSel) cls+=' selected'; else if(hasCan) cls+=' has-cancel';
+    if(isToday) cls+=' today'; else if(isSel) cls+=' selected'; else if(diaLibre) cls+=' has-libre'; else if(hasCan) cls+=' has-cancel';
     const dots=daySes.slice(0,3).map(s=>`<div class="cal-dot" style="background:${isToday?'rgba(255,255,255,0.7)':dotColor(s.Tipo)}"></div>`).join('');
     calHTML+=`<div class="${cls}" onclick="selectCalDay('${dateStr}')"><span class="dn">${d}</span><div class="cal-dots">${dots}</div></div>`;
   }
