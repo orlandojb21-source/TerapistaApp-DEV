@@ -486,24 +486,24 @@ textarea{resize:none;height:75px;line-height:1.5}
       <input type="text" id="fp-lugar" placeholder="Ej: Escuela Las Palmas" autocomplete="off" />
       <div class="two-col">
         <div><div class="field-lbl">Contacto</div><input type="text" id="fp-contacto" placeholder="Mamá/Papá" /></div>
-        <div><div class="field-lbl">Teléfono</div><input type="tel" id="fp-tel" placeholder="6000-0000" /></div>
+        <div><div class="field-lbl">Teléfono</div><input type="tel" id="fp-tel" placeholder="Ej: +1 305 000 0000" /></div>
       </div>
       <div class="field-lbl">Total de sesiones asignadas</div>
       <input type="number" id="fp-total" placeholder="Ej: 70" min="1" />
       <div class="field-lbl">Duración de cada sesión</div>
       <div class="dur-grid">
         <div class="dur-opt sel-30" id="dopt-30" onclick="selectDur(30)">
-          <div class="d-icon">⏱️</div><div class="d-lbl">30 minutos</div><div class="d-sub">Media sesión</div>
+          <div class="d-icon">⏱️</div><div class="d-lbl">30 minutos</div>
         </div>
         <div class="dur-opt" id="dopt-60" onclick="selectDur(60)">
-          <div class="d-icon">🕐</div><div class="d-lbl">1 hora</div><div class="d-sub">Sesión completa</div>
+          <div class="d-icon">🕐</div><div class="d-lbl">1 hora</div>
         </div>
       </div>
       <div class="field-lbl">Agencia</div>
       <select id="fp-agencia"></select>
       <div class="field-lbl">Programa</div>
       <select id="fp-tipo"></select>
-      <div class="field-lbl">Precio por hora (B/.)</div>
+      <div class="field-lbl">Precio por hora ($)</div>
       <input type="number" id="fp-precio" placeholder="Ej: 45" min="0" step="0.50" />
       <div class="field-lbl">Observaciones</div>
       <textarea id="fp-obs" placeholder="Notas relevantes del paciente..."></textarea>
@@ -591,7 +591,7 @@ textarea{resize:none;height:75px;line-height:1.5}
 
 <script>
 const COLORS = ['#534AB7','#1D9E75','#D4537E','#BA7517','#3B82F6','#7C3AED','#059669','#DC2626'];
-const API_URL = "https://script.google.com/macros/s/AKfycbwecbUKCStSUdOYe6E0gHOCzYZPzhH8OImIJXBMCwt2UwCAUVSdQqS6JJ-GvXKCiToO/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzBcqp0mU6UvxhbrTG51OJQSeGT3sPROrmRsK-bCfTpE5f7ARwTdhaPkPeERgnzp4MGJw/exec";
 
 let pacientes = [], sesiones = [], agencias = [], planData = {}, tiposConfig = [];
 let currentScreen = 'hoy';
@@ -1176,7 +1176,7 @@ function abrirDetallePaciente(id) {
       <div class="info-row"><span class="k">Duración</span><span class="v">${p.DuracionMin} min</span></div>
       <div class="info-row"><span class="k">Agencia</span><span class="v">${p.Agencia||'—'}</span></div>
       <div class="info-row"><span class="k">Programa</span><span class="v">${p.Programa||'—'}</span></div>
-      <div class="info-row"><span class="k">Precio/hora</span><span class="v">B/. ${parseFloat(p.Precio||0).toFixed(2)}</span></div>
+      <div class="info-row"><span class="k">Precio/hora</span><span class="v">$ ${parseFloat(p.Precio||0).toFixed(2)}</span></div>
     </div>
     <div class="card" style="margin-top:8px">
       <div class="section-lbl" style="margin-top:0">Contacto</div>
@@ -1520,15 +1520,15 @@ async function renderReporteIngresos() {
     });
     const agenciaHTML=Object.entries(porAgencia).map(([a,t])=>`
       <div class="session-item"><div class="s-info"><div class="s-name">${a}</div></div>
-      <span style="font-size:13px;font-weight:500;color:var(--mint)">B/. ${t.toFixed(2)}</span></div>`).join('')||'<div class="empty">Sin datos</div>';
+      <span style="font-size:13px;font-weight:500;color:var(--mint)">$ ${t.toFixed(2)}</span></div>`).join('')||'<div class="empty">Sin datos</div>';
     const pacienteHTML=porPacienteMes.map(p=>`
       <div class="session-item">
-        <div class="s-info"><div class="s-name">${p.nombre}</div><div class="s-sub">${p.agencia} · ${p.sesiones} ses. × B/. ${p.pxs.toFixed(2)}</div></div>
-        <span style="font-size:13px;font-weight:500;color:var(--text)">B/. ${p.total.toFixed(2)}</span></div>`).join('')||'<div class="empty">Sin datos</div>';
+        <div class="s-info"><div class="s-name">${p.nombre}</div><div class="s-sub">${p.agencia} · ${p.sesiones} ses. × $ ${p.pxs.toFixed(2)}</div></div>
+        <span style="font-size:13px;font-weight:500;color:var(--text)">$ ${p.total.toFixed(2)}</span></div>`).join('')||'<div class="empty">Sin datos</div>';
     el.innerHTML=`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <div class="stat-card"><div class="num" style="color:var(--mint)">B/. ${totalSemana.toFixed(2)}</div><div class="lbl">Esta semana</div></div>
-        <div class="stat-card"><div class="num" style="color:var(--mint)">B/. ${totalMes.toFixed(2)}</div><div class="lbl">Este mes</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--mint)">$ ${totalSemana.toFixed(2)}</div><div class="lbl">Esta semana</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--mint)">$ ${totalMes.toFixed(2)}</div><div class="lbl">Este mes</div></div>
       </div>
       <div class="card" style="margin-bottom:8px"><div class="section-lbl" style="margin-top:0">Por agencia — ${MESES[m]} ${y}</div>${agenciaHTML}</div>
       <div class="card" style="margin-bottom:8px"><div class="section-lbl" style="margin-top:0">Por paciente — ${MESES[m]} ${y}</div>${pacienteHTML}</div>
@@ -1631,11 +1631,11 @@ function imprimirReporte(tipo) {
       const cnt=sesMes.filter(s=>s.PacienteID===p.ID).length;
       if(cnt>0){const total=cnt*pxs;totalMes+=total;
         if(!porAgencia[agencia]) porAgencia[agencia]=0; porAgencia[agencia]+=total;
-        filasPac.push(`<tr><td>${p.Nombre}</td><td>${agencia}</td><td>${cnt}</td><td>B/. ${pxs.toFixed(2)}</td><td><strong>B/. ${total.toFixed(2)}</strong></td></tr>`);}
+        filasPac.push(`<tr><td>${p.Nombre}</td><td>${agencia}</td><td>${cnt}</td><td>$ ${pxs.toFixed(2)}</td><td><strong>$ ${total.toFixed(2)}</strong></td></tr>`);}
     });
-    const filasAg=Object.entries(porAgencia).map(([a,t])=>`<tr><td>${a}</td><td><strong>B/. ${t.toFixed(2)}</strong></td></tr>`).join('');
+    const filasAg=Object.entries(porAgencia).map(([a,t])=>`<tr><td>${a}</td><td><strong>$ ${t.toFixed(2)}</strong></td></tr>`).join('');
     htmlReporte=`<div class="total-grande"><div>TOTAL DEL MES</div>
-      <div style="font-size:36px;color:#1D9E75;font-weight:bold">B/. ${totalMes.toFixed(2)}</div>
+      <div style="font-size:36px;color:#1D9E75;font-weight:bold">$ ${totalMes.toFixed(2)}</div>
       <div>${meses[repMonth]} ${repYear}</div></div>
       <h2>Por agencia</h2>
       <table><thead><tr><th>Agencia</th><th>Total</th></tr></thead><tbody>${filasAg||'<tr><td colspan="2">Sin datos</td></tr>'}</tbody></table>
