@@ -1754,10 +1754,14 @@ function eliminarEntradaPlan(diaIdx,entradaIdx) {
 async function guardarPlan() {
   showToast('Guardando planificación...');
   try {
-    const r=await apiGet({action:'guardarPlanificacion',data:JSON.stringify(planData)});
-    if(r&&r.success) showToast('✅ Planificación guardada');
-    else showToast('⚠️ Error: '+(r&&r.error||'sin respuesta'));
-  } catch(e){showToast('⚠️ Error: '+e.message);}
+    const r = await apiGet({ action:'guardarPlanificacion', data:JSON.stringify(planData) });
+    if (r && r.success) {
+      showToast('✅ Planificación guardada');
+      await sincronizarCalendario();
+    } else {
+      showToast('⚠️ Error: ' + (r && r.error || 'sin respuesta'));
+    }
+  } catch(e) { showToast('⚠️ Error: ' + e.message); }
 }
 
 function limpiarPlan() { planData={}; renderPlan(); guardarPlan(); }
