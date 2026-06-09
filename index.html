@@ -1762,7 +1762,10 @@ function eliminarEntradaPlan(diaIdx,entradaIdx) {
 async function guardarPlan() {
   showToast('Guardando planificación...');
   try {
-    const r = await apiGet({ action:'guardarPlanificacion', data:JSON.stringify(planData) });
+    const emailTerapista = (currentUser.rol === 'admin' && terapistaActiva)
+      ? terapistaActiva
+      : currentUser.email;
+    const r = await apiGet({ action:'guardarPlanificacion', data:JSON.stringify(planData), email: emailTerapista });
     if (r && r.success) {
       showToast('✅ Planificación guardada');
       await sincronizarCalendario();
