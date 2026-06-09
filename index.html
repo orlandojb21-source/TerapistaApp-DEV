@@ -1237,7 +1237,8 @@ async function guardarPaciente() {
     DuracionMin:selectedDur,Observaciones:document.getElementById('fp-obs').value,
     Agencia:document.getElementById('fp-agencia').value,
     Programa:document.getElementById('fp-tipo').value,
-    Precio:document.getElementById('fp-precio').value};
+    Precio:document.getElementById('fp-precio').value,
+    TerapistaEmail: currentUser.email};
   showToast('Guardando...');
   try {
     if(editingPacId){
