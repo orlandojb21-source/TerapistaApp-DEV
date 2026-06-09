@@ -636,7 +636,7 @@ async function init() {
       apiGet({ action:'getPacientes', email: emailTerapista }),
       apiGet({ action:'getSesiones', email: emailTerapista }),
       apiGet({ action:'getAgencias' }),
-      apiGet({ action:'getPlanificacion' }),
+      apiGet({ action:'getPlanificacion', email: emailTerapista }),
       apiGet({ action:'getConfig2' }),
       apiGet({ action:'getDiasLibres', email: emailTerapista })
     ]);
