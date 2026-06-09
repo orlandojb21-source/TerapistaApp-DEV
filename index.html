@@ -2162,22 +2162,16 @@ async function crearEventosDesdePlan(accessToken) {
 
 async function sincronizarCalendario() {
   if (!currentUser) { showToast('⚠️ Debes estar autenticado'); return; }
-
-  // Obtener access token fresco
-  const tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: '277871918112-625bnihugl53fqdcqmvqi4vb2e1t7m64.apps.googleusercontent.com',
-    scope: 'https://www.googleapis.com/auth/calendar.events',
-    callback: async (response) => {
-      if (!response.access_token) { showToast('⚠️ No se pudo obtener acceso al calendario'); return; }
-      showToast('🗓️ Sincronizando calendario...');
-      try {
-        const borrados = await borrarEventosFuturos(response.access_token);
-        const creados  = await crearEventosDesdePlan(response.access_token);
-        showToast(`✅ Calendario actualizado — ${creados} eventos creados`);
-      } catch(e) {
-        showToast('⚠️ Error: ' + e.message);
-      }
-    }
+  if (!window._calendarToken) { showToast('⚠️ Vuelve a iniciar sesión para sincronizar'); return; }
+  showToast('🗓️ Sincronizando calendario...');
+  try {
+    const borrados = await borrarEventosFuturos(window._calendarToken);
+    const creados  = await crearEventosDesdePlan(window._calendarToken);
+    showToast(`✅ Calendario actualizado — ${creados} eventos creados`);
+  } catch(e) {
+    showToast('⚠️ Error: ' + e.message);
+  }
+}
   });
   tokenClient.requestAccessToken();
 }
