@@ -1936,13 +1936,25 @@ function loginConGoogle() {
     scope: 'profile email https://www.googleapis.com/auth/calendar.events',
     callback: async (response) => {
       if (response.access_token) {
-        // guarda el token para usarlo después
         window._calendarToken = response.access_token;
         const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: 'Bearer ' + response.access_token }
         });
         const user = await res.json();
-        currentUser = { name: user.name, email: user.email, picture: user.picture };
+
+        // Verificar rol
+        const rUsuario = await apiGet({ action: 'getUsuario', email: user.email });
+        if (!rUsuario.success) {
+          alert('⚠️ Tu cuenta no está autorizada para acceder a esta app.');
+          return;
+        }
+
+        currentUser = {
+          name: user.name,
+          email: user.email,
+          picture: user.picture,
+          rol: rUsuario.data.rol
+        };
         localStorage.setItem('terapista_user', JSON.stringify(currentUser));
         showApp();
         init();
