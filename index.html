@@ -2184,6 +2184,41 @@ async function sincronizarCalendario() {
     showToast('⚠️ Error: ' + e.message);
   }
 }
+
+  // ── ADMIN ──
+let terapistaActiva = null;
+
+async function initAdmin() {
+  const r = await apiGet({ action: 'getTerapistas' });
+  if (!r.success || !r.data.length) { showToast('⚠️ No hay terapistas registradas'); return; }
+  
+  const opts = r.data.map(t => `<option value="${t.email}">${t.nombre || t.email}</option>`).join('');
+  
+  const selector = document.createElement('div');
+  selector.id = 'admin-bar';
+  selector.style.cssText = 'background:var(--lav);color:white;padding:8px 16px;display:flex;align-items:center;gap:10px;font-size:13px;flex-shrink:0';
+  selector.innerHTML = `
+    <span>👁️ Viendo como:</span>
+    <select id="admin-terapista-sel" style="flex:1;padding:6px 10px;border-radius:8px;border:none;font-family:Georgia,serif;font-size:13px;color:var(--text)">
+      ${opts}
+    </select>
+    <button onclick="cambiarTerapista()" style="background:white;color:var(--lav);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:Georgia,serif;font-size:12px;font-weight:500">Ver</button>
+  `;
+  
+  // Insertar antes del contenido principal
+  document.querySelector('.desktop-main').prepend(selector);
+  
+  // Cargar la primera terapista por defecto
+  terapistaActiva = r.data[0].email;
+  await init();
+}
+
+async function cambiarTerapista() {
+  const sel = document.getElementById('admin-terapista-sel');
+  terapistaActiva = sel.value;
+  showToast('🔄 Cargando datos de ' + sel.options[sel.selectedIndex].text);
+  await init();
+}
 </script>
 </body>
 </html>
