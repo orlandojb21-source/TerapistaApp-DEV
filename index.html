@@ -11,6 +11,8 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjEwMCIgZmlsbD0iIzUzNEFCNyIvPgogIDxyZWN0IHg9IjgwIiB5PSIxMjAiIHdpZHRoPSIzNTIiIGhlaWdodD0iMzAwIiByeD0iMjQiIGZpbGw9IiNFRUVERkUiLz4KICA8dGV4dCB4PSIyNTYiIHk9IjI4MCIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsc2VyaWYiIGZvbnQtc2l6ZT0iMTQwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzUzNEFCNyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QVM8L3RleHQ+Cjwvc3ZnPgo=">
 <title>Appointment Scheduling</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1LxAZheQWNTyLd6h0WSpKh26H6bDviGA&libraries=places" async defer></script>
 <style>
 :root {
   --lav:#534AB7;--lav-light:#EEEDFE;--lav-deep:#3C3489;--lav-mid:#7F77DD;
@@ -181,9 +183,9 @@ textarea{resize:none;height:75px;line-height:1.5}
 .p-preview{background:white;border-radius:var(--radius);border:1.5px solid var(--lav);padding:12px 14px;margin-top:10px;display:none}
 .p-preview.show{display:block}
 .p-preview-name{font-size:14px;color:var(--text);font-weight:500;margin-bottom:8px}
-.overlay{position:absolute;inset:0;background:var(--app-bg);display:none;flex-direction:column;z-index:50;overflow:hidden}
+.overlay{position:fixed;inset:0;background:var(--app-bg);display:none;flex-direction:column;z-index:150;overflow:hidden}
 .overlay.show{display:flex}
-.overlay-header{background:var(--lav-bg);padding:44px 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.overlay-header{background:var(--lav-bg);padding:16px 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .back-btn{background:white;border:0.5px solid var(--border);border-radius:8px;width:30px;height:30px;cursor:pointer;color:var(--lav);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .overlay-title{font-size:16px;color:var(--text);flex:1}
 .overlay-body{flex:1;overflow-y:auto;padding:14px 14px 80px}
@@ -239,11 +241,34 @@ textarea{resize:none;height:75px;line-height:1.5}
 .pac-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:36px}
 .pac-chip{display:flex;align-items:center;gap:5px;background:var(--lav-light);border:1px solid var(--lav-pale);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--lav);cursor:pointer}
 .pac-chip .x{color:var(--lav);font-weight:bold;margin-left:2px}
+.login-screen{position:fixed;inset:0;background:var(--lav-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;padding:40px 24px}
+.login-logo{width:80px;height:80px;background:var(--lav);border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.login-logo i{font-size:36px;color:white}
+.login-title{font-size:24px;color:var(--text);text-align:center;margin-bottom:8px}
+.login-sub{font-size:13px;color:var(--sub);text-align:center;margin-bottom:40px}
+.login-btn-google{display:flex;align-items:center;gap:12px;background:white;border:0.5px solid var(--border);border-radius:12px;padding:14px 24px;font-size:15px;color:var(--text);cursor:pointer;font-family:Georgia,serif;box-shadow:0 2px 8px rgba(83,74,183,0.1)}
+.login-btn-google img{width:20px;height:20px}
+.login-bio-btn{margin-top:16px;background:var(--lav);color:white;border:none;border-radius:12px;padding:14px 24px;font-size:15px;cursor:pointer;font-family:Georgia,serif;display:flex;align-items:center;gap:10px;width:100%;justify-content:center}
+.login-bio-btn i{font-size:20px}
 </style>
 </head>
 <body>
-<div id="app">
 
+<!-- PANTALLA DE LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo"><i class="fas fa-child"></i></div>
+  <h1 class="login-title">TerapistaApp</h1>
+  <p class="login-sub">Inicia sesión para continuar</p>
+  <button class="login-btn-google" onclick="loginConGoogle()">
+    <img src="https://www.google.com/favicon.ico" />
+    Continuar con Google
+  </button>
+  <button class="login-bio-btn" id="bio-btn" style="display:none" onclick="loginConBiometrico()">
+    <i class="fas fa-fingerprint"></i> Usar huella / Face ID
+  </button>
+</div>
+<div id="app">
+  
   <!-- SIDEBAR DESKTOP -->
   <aside class="desktop-sidebar">
     <div class="sidebar-logo">
@@ -262,7 +287,7 @@ textarea{resize:none;height:75px;line-height:1.5}
     <div class="sidebar-footer">
       <div class="sidebar-user">
         <div class="avatar-xs">SS</div>
-        <div><div class="u-name">Stacy Saavedra</div><div class="u-role">Speech Therapist</div></div>
+        <div><div class="u-name" id="sidebar-username">Stacy Saavedra</div><div class="u-role">Speech Therapist</div></div>
       </div>
     </div>
   </aside>
@@ -458,7 +483,7 @@ textarea{resize:none;height:75px;line-height:1.5}
       <div class="field-lbl">Fecha de nacimiento</div>
       <input type="date" id="fp-dob" />
       <div class="field-lbl">Lugar de atención</div>
-      <input type="text" id="fp-lugar" placeholder="Ej: Escuela Las Palmas" />
+      <input type="text" id="fp-lugar" placeholder="Ej: Escuela Las Palmas" autocomplete="off" />
       <div class="two-col">
         <div><div class="field-lbl">Contacto</div><input type="text" id="fp-contacto" placeholder="Mamá/Papá" /></div>
         <div><div class="field-lbl">Teléfono</div><input type="tel" id="fp-tel" placeholder="6000-0000" /></div>
@@ -566,7 +591,7 @@ textarea{resize:none;height:75px;line-height:1.5}
 
 <script>
 const COLORS = ['#534AB7','#1D9E75','#D4537E','#BA7517','#3B82F6','#7C3AED','#059669','#DC2626'];
-const API_URL = "https://script.google.com/macros/s/AKfycbwecbUKCStSUdOYe6E0gHOCzYZPzhH8OImIJXBMCwt2UwCAUVSdQqS6JJ-GvXKCiToO/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzBcqp0mU6UvxhbrTG51OJQSeGT3sPROrmRsK-bCfTpE5f7ARwTdhaPkPeERgnzp4MGJw/exec";
 
 let pacientes = [], sesiones = [], agencias = [], planData = {}, tiposConfig = [];
 let currentScreen = 'hoy';
@@ -820,7 +845,7 @@ function updateHeader(screen) {
         <p style="font-size:12px;color:var(--sub);margin-top:1px">Speech Therapist</p>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <span style="font-size:14px;font-weight:500;color:var(--lav)">Stacy Saavedra</span>
+        <span style="font-size:14px;font-weight:500;color:var(--lav)">${currentUser?currentUser.name:'Stacy Saavedra'}</span>
         <button onclick="recargarManual()" style="background:var(--lav-light);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:14px;color:var(--lav);display:flex;align-items:center;justify-content:center">↻</button>
       </div></div>`;
   } else if (screen==='mes') {
@@ -1073,7 +1098,7 @@ function abrirDetalleNino(id) {
       <i class="fas fa-child" style="color:var(--lav);font-size:24px"></i>
     </div>
     <div style="text-align:center;font-size:18px;color:var(--text);margin-bottom:4px">${p.Nombre}</div>
-    <div style="text-align:center;font-size:12px;color:var(--sub);margin-bottom:14px">${edad(p.FechaNacimiento)} · ${p.LugarAtencion}</div>
+    <div style="text-align:center;font-size:12px;color:var(--sub);margin-bottom:14px">${edad(p.FechaNacimiento)} · <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.LugarAtencion)}" target="_blank" style="color:var(--sub);text-decoration:none">${p.LugarAtencion} 📍</a></div>
     <div class="stats-3" style="background:var(--lav-light);border-radius:var(--radius);padding:12px;margin-bottom:10px">
       <div><div class="n">${total}</div><div class="l">Asignadas</div></div>
       <div><div class="n">${done}</div><div class="l">Realizadas</div></div>
@@ -1135,7 +1160,7 @@ function abrirDetallePaciente(id) {
       <i class="fas fa-child" style="color:var(--lav);font-size:24px"></i>
     </div>
     <div style="text-align:center;font-size:18px;color:var(--text);margin-bottom:4px">${p.Nombre}</div>
-    <div style="text-align:center;font-size:12px;color:var(--sub);margin-bottom:14px">${p.LugarAtencion}</div>
+    <div style="text-align:center;font-size:12px;color:var(--sub);margin-bottom:14px"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.LugarAtencion)}" target="_blank" style="color:var(--sub);text-decoration:none">${p.LugarAtencion} 📍</a></div>
     <div class="stats-3" style="background:var(--lav-light);border-radius:var(--radius);padding:12px;margin-bottom:10px">
       <div><div class="n">${total}</div><div class="l">Asignadas</div></div>
       <div><div class="n">${done}</div><div class="l">Realizadas</div></div>
@@ -1147,7 +1172,7 @@ function abrirDetallePaciente(id) {
       <div class="section-lbl" style="margin-top:0">Datos personales</div>
       <div class="info-row"><span class="k">Fecha nac.</span><span class="v">${fmt(p.FechaNacimiento)}</span></div>
       <div class="info-row"><span class="k">Edad</span><span class="v">${edad(p.FechaNacimiento)}</span></div>
-      <div class="info-row"><span class="k">Lugar</span><span class="v">${p.LugarAtencion}</span></div>
+      <div class="info-row"><span class="k">Lugar</span><span class="v"><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.LugarAtencion)}" target="_blank" style="color:var(--lav);text-decoration:none">${p.LugarAtencion} 📍</a></span></div>
       <div class="info-row"><span class="k">Duración</span><span class="v">${p.DuracionMin} min</span></div>
       <div class="info-row"><span class="k">Agencia</span><span class="v">${p.Agencia||'—'}</span></div>
       <div class="info-row"><span class="k">Programa</span><span class="v">${p.Programa||'—'}</span></div>
@@ -1774,9 +1799,17 @@ async function recargarDatos() {
   ov.innerHTML = `
     <div style="background:white;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:20px 16px 40px">
       <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px"></div>
-      <div style="font-size:16px;color:var(--text);margin-bottom:14px;font-family:Georgia,serif">🏖️ Marcar día libre</div>
-      <div class="field-lbl">Fecha</div>
-      <input type="date" id="dl-fecha" value="${fechaPreseleccionada||today()}" style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border);font-family:Georgia,serif;font-size:13px;margin-bottom:12px" />
+      <div style="font-size:16px;color:var(--text);margin-bottom:14px;font-family:Georgia,serif">🏖️ Marcar día(s) libre(s)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <div class="field-lbl">Desde</div>
+          <input type="date" id="dl-fecha" value="${fechaPreseleccionada||today()}" style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border);font-family:Georgia,serif;font-size:13px" />
+        </div>
+        <div>
+          <div class="field-lbl">Hasta <span style="font-size:10px;color:var(--lav-pale)">(opcional)</span></div>
+          <input type="date" id="dl-fecha-fin" value="${fechaPreseleccionada||today()}" style="width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:0.5px solid var(--border);font-family:Georgia,serif;font-size:13px" />
+        </div>
+      </div>
       <div class="field-lbl">Tipo</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
         <div id="dl-opt-libre" onclick="selectDLTipo('Libre')" style="padding:10px 6px;border-radius:var(--radius-sm);border:1.5px solid var(--lav);background:var(--lav-light);text-align:center;cursor:pointer">
@@ -1809,29 +1842,216 @@ function selectDLTipo(tipo) {
 }
 
 async function guardarDiaLibre() {
-  const fecha = document.getElementById('dl-fecha').value;
+  const fechaInicio = document.getElementById('dl-fecha').value;
+  const fechaFin    = document.getElementById('dl-fecha-fin').value || fechaInicio;
   const notas = document.getElementById('dl-notas').value;
   const tipo  = window._dlTipo || 'Libre';
-  if (!fecha) { showToast('⚠️ Selecciona una fecha'); return; }
-  showToast('Guardando...');
+  if (!fechaInicio) { showToast('⚠️ Selecciona una fecha'); return; }
+  if (fechaFin < fechaInicio) { showToast('⚠️ La fecha fin no puede ser anterior al inicio'); return; }
+
+  // Generar todas las fechas del rango
+  const fechas = [];
+  let current = new Date(fechaInicio + 'T12:00:00');
+  const end    = new Date(fechaFin    + 'T12:00:00');
+  while (current <= end) {
+    const y = current.getFullYear();
+    const m = String(current.getMonth()+1).padStart(2,'0');
+    const d = String(current.getDate()).padStart(2,'0');
+    fechas.push(`${y}-${m}-${d}`);
+    current.setDate(current.getDate() + 1);
+  }
+
+  showToast(`Guardando ${fechas.length} día(s)...`);
   try {
-    const r = await apiGet({ action:'agregarDiaLibre', Fecha:fecha, Tipo:tipo, Notas:notas });
-    if (r.success) {
-      diasLibres.push({ ID: r.id, Fecha:fecha, Tipo:tipo, Notas:notas });
-      document.getElementById('ov-dia-libre').remove();
-      showToast('✅ Día libre guardado');
-      renderHoy();
-      renderMes();
-    } else {
-      showToast('⚠️ Error: ' + (r.error || 'sin respuesta'));
-    }
+    const resultados = [];
+for (const fecha of fechas) {
+  const r = await apiGet({ action:'agregarDiaLibre', Fecha:fecha, Tipo:tipo, Notas:notas });
+  resultados.push(r);
+}
+const exitos = resultados.filter(r => r.success);
+    exitos.forEach((r, i) => {
+      diasLibres.push({ ID: r.id, Fecha: fechas[i], Tipo: tipo, Notas: notas });
+    });
+    document.getElementById('ov-dia-libre').remove();
+    showToast(`✅ ${exitos.length} día(s) guardado(s)`);
+    renderHoy();
+    renderMes();
   } catch(e) {
-    showToast('⚠️ Error: '+e.message);
+    showToast('⚠️ Error: ' + e.message);
   }
 }
+
+  // ── AUTENTICACIÓN ──
+let currentUser = null;
+
+function checkAuth() {
+  const saved = localStorage.getItem('terapista_user');
+  const esMobil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    if (esMobil) {
+      // En móvil siempre pide autenticación
+      const bioRegistrado = localStorage.getItem('terapista_bio');
+      if (bioRegistrado && window.PublicKeyCredential) {
+        showLogin(); // Muestra pantalla con botón biométrico
+      } else {
+        // No hay bio registrado, pide Google
+        localStorage.removeItem('terapista_user');
+        currentUser = null;
+        showLogin();
+      }
+    } else {
+      // En desktop entra directo
+      showApp();
+      checkBiometricoDisponible();
+    }
+  } else {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  checkBiometricoDisponible();
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  if (currentUser) {
+    const el = document.getElementById('sidebar-username');
+    if (el) el.textContent = currentUser.name;
+  }
+}
+
+function loginConGoogle() {
+  google.accounts.oauth2.initTokenClient({
+    client_id: '277871918112-625bnihugl53fqdcqmvqi4vb2e1t7m64.apps.googleusercontent.com',
+    scope: 'profile email',
+    callback: async (response) => {
+      if (response.access_token) {
+        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: 'Bearer ' + response.access_token }
+        });
+        const user = await res.json();
+        currentUser = { name: user.name, email: user.email, picture: user.picture };
+        localStorage.setItem('terapista_user', JSON.stringify(currentUser));
+        showApp();
+        init();
+        ofrecerBiometrico();
+      }
+    }
+  }).requestAccessToken();
+}
+
+function logout() {
+  localStorage.removeItem('terapista_user');
+  localStorage.removeItem('terapista_bio');
+  currentUser = null;
+  showLogin();
+}
+
+async function checkBiometricoDisponible() {
+  const bioRegistrado = localStorage.getItem('terapista_bio');
+  if (bioRegistrado && window.PublicKeyCredential) {
+    document.getElementById('bio-btn').style.display = 'flex';
+  }
+}
+
+async function ofrecerBiometrico() {
+  if (!window.PublicKeyCredential) return;
+  const yaRegistrado = localStorage.getItem('terapista_bio');
+  if (yaRegistrado) return;
+  setTimeout(() => {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(83,74,183,0.4);z-index:500;display:flex;align-items:flex-end;justify-content:center';
+    ov.innerHTML = `
+      <div style="background:white;width:100%;max-width:430px;border-radius:20px 20px 0 0;padding:24px 20px 40px;text-align:center">
+        <div style="font-size:48px;margin-bottom:12px">🔐</div>
+        <div style="font-size:18px;color:var(--text);margin-bottom:8px;font-family:Georgia,serif">¿Activar acceso biométrico?</div>
+        <div style="font-size:13px;color:var(--sub);margin-bottom:24px">Usa tu huella o Face ID para entrar más rápido la próxima vez</div>
+        <button onclick="registrarBiometrico(this.closest('[style*=fixed]'))" style="width:100%;padding:13px;background:var(--lav);color:white;border:none;border-radius:12px;font-size:14px;cursor:pointer;font-family:Georgia,serif;margin-bottom:8px">🔐 Activar biométrico</button>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;padding:11px;background:none;border:none;color:var(--sub);font-size:13px;cursor:pointer;font-family:Georgia,serif">Ahora no</button>
+      </div>`;
+    document.body.appendChild(ov);
+  }, 1500);
+}
+
+async function registrarBiometrico(overlay) {
+  try {
+    const challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    const credential = await navigator.credentials.create({
+      publicKey: {
+        challenge,
+        rp: { name: 'TerapistaApp' },
+        user: { id: new Uint8Array(16), name: currentUser.email, displayName: currentUser.name },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
+        timeout: 60000
+      }
+    });
+    if (credential) {
+      localStorage.setItem('terapista_bio', JSON.stringify({ id: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))) }));
+      overlay.remove();
+      showToast('✅ Biométrico activado');
+    }
+  } catch(e) {
+    overlay.remove();
+    showToast('⚠️ No se pudo activar: ' + e.message);
+  }
+}
+
+async function loginConBiometrico() {
+  try {
+    const bioData = JSON.parse(localStorage.getItem('terapista_bio'));
+    const challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    const assertion = await navigator.credentials.get({
+      publicKey: {
+        challenge,
+        allowCredentials: [{ type: 'public-key', id: Uint8Array.from(atob(bioData.id), c => c.charCodeAt(0)) }],
+        userVerification: 'required',
+        timeout: 60000
+      }
+    });
+    if (assertion) {
+      showApp();
+      init();
+    }
+  } catch(e) {
+    showToast('⚠️ Error biométrico: ' + e.message);
+  }
+}
+
+  function initMapsAutocomplete() {
+  const input = document.getElementById('fp-lugar');
+  if (!input || !window.google) return;
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+  // sin componentRestrictions — todos los países
+  types: ["address"],
+});
+  autocomplete.addListener('place_changed', function() {
+    const place = autocomplete.getPlace();
+    if (place && place.formatted_address) {
+      input.value = place.name || place.formatted_address;
+    }
+  });
+}
+
+window.addEventListener('load', function() {
+  const interval = setInterval(function() {
+    if (window.google && window.google.maps && window.google.maps.places) {
+      initMapsAutocomplete();
+      clearInterval(interval);
+    }
+  }, 500);
+});
   
 document.getElementById('reg-fecha').value=today();
-init();
+checkAuth();
 
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
