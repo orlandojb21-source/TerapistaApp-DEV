@@ -2101,6 +2101,8 @@ async function crearEventosDesdePlan(accessToken) {
   const finEscolar = getFechaFinEscolar();
   const DIAS_SEMANA = [1, 2, 3, 4, 5, 6]; // Lun=1 ... Sab=6
   const creados = [];
+  console.log('planData:', JSON.stringify(planData));
+  console.log('pacientes:', pacientes.length);
 
   // Para cada entrada del plan, proyectar cada semana desde hoy hasta fin escolar
   for (const [diaIdx, entradas] of Object.entries(planData)) {
