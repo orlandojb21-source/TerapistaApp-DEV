@@ -1365,8 +1365,9 @@ async function guardarSesion() {
     const promesas=regPacientes.map(pacId=>{
       const p=pacientes.find(x=>x.ID===pacId)||{};
       return apiPost({action:'registrarSesion',data:{
-        PacienteID:pacId,Fecha:fecha,HoraInicio:horaIni,HoraFin:horaFin,
-        Lugar:p.LugarAtencion||'',Tipo:tipo,Notas:notas
+        PacienteID:pacId, Fecha:fecha, HoraInicio:horaIni, HoraFin:horaFin,
+        Lugar:p.LugarAtencion||'', Tipo:tipo, Notas:notas,
+        TerapistaEmail: currentUser.email
       }});
     });
     const resultados=await Promise.all(promesas);
