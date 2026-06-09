@@ -1877,7 +1877,7 @@ async function guardarDiaLibre() {
   try {
     const resultados = [];
 for (const fecha of fechas) {
-  const r = await apiGet({ action:'agregarDiaLibre', Fecha:fecha, Tipo:tipo, Notas:notas });
+  const r = await apiGet({ action:'agregarDiaLibre', Fecha:fecha, Tipo:tipo, Notas:notas, TerapistaEmail: currentUser.email });
   resultados.push(r);
 }
 const exitos = resultados.filter(r => r.success);
