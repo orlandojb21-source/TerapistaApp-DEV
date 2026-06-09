@@ -1927,6 +1927,11 @@ function showApp() {
   if (currentUser) {
     const el = document.getElementById('sidebar-username');
     if (el) el.textContent = currentUser.name;
+    if (currentUser.rol === 'admin') {
+      initAdmin();
+    } else {
+      init();
+    }
   }
 }
 
